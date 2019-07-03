@@ -1,0 +1,16 @@
+#!/bin/bash
+
+# Fix code style before commiting
+
+ACCEPT=0
+ABORT=1
+
+echo -e '\033[1;32mChecking code style...\033[0m'
+if npx standard --fix 1>&2
+then
+    echo -e '\033[1;32mDone\033[0m'
+    exit $ACCEPT
+else
+    echo -e '\033[1;31mAborting commit...\033[0m'
+    exit $ABORT
+fi
