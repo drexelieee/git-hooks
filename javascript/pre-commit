@@ -1,16 +1,19 @@
-#!/bin/bash
+#!/bin/bash 
+ 
+# Ensure all JavaScript files staged for commit pass standard code style
 
-# Fix code style before commiting
+function xargs-r() {
+  # Portable version of "xargs -r". The -r flag is a GNU extension that 
+  # prevents xargs from running if there are no input files. 
+  if IFS= read -r -d $'\n' path; then
+    { echo "$path"; cat; } | xargs $@
+  fi
+}
 
-ACCEPT=0
-ABORT=1
+# Check style of all staged javascript files
+git diff --name-only --cached --relative | grep '\.js$' | xargs-r -E '' -t npx standard
 
-echo -e '\033[1;32mChecking code style...\033[0m'
-if npx standard --fix 1>&2
-then
-    echo -e '\033[1;32mDone\033[0m'
-    exit $ACCEPT
-else
-    echo -e '\033[1;31mAborting commit...\033[0m'
-    exit $ABORT
+if [[ $? -ne 0 ]]; then
+  echo 'JavaScript Standard Style errors were detected. Aborting commit.'
+  exit 1
 fi
